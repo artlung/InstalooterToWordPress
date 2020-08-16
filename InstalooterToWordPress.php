@@ -14,6 +14,14 @@ class InstalooterToWordPress
     private $posts = [];
     private $years = [];
     private $url_for_images;
+    /**
+     * @var array
+     */
+    private $categories = [];
+    /**
+     * @var array
+     */
+    private $tags = [];
 
     /**
      * @return mixed
@@ -62,48 +70,19 @@ class InstalooterToWordPress
 
     }
 
-    // TODO not handling video at this time sorry yo
+    /**
+     * TODO not handling video at this time sorry yo
+     * @param $key
+     * @param $filename
+     */
     public function saveMp4($key, $filename)
     {
         $this->posts[$key][self::mp4] = $this->getDumpFolder() . '/' . $filename;
     }
 
-    public function dumpData()
-    {
-        print_r($this->posts);
-    }
-
-    public function dumpTypeNames() {
-        foreach($this->posts as $key => $data) {
-//            print_r($data);
-            if (array_key_exists(self::json, $data)) {
-                echo $data[self::json]['__typename'];
-            }
-        }
-    }
-    public function dumpTitles() {
-        foreach($this->posts as $key => $data) {
-            if (array_key_exists(self::INSTAGRAM_POST, $data)) {
-                /* @var InstagramPost */
-                $Post = $data[self::INSTAGRAM_POST];
-                echo $Post->getTitle();
-                echo "\n";
-                echo $Post->getTags();
-                echo "\n";
-                echo $Post->getDate();
-                echo "\n";
-                echo $Post->getInstagramUrl();
-                echo "\n";
-            }
-        }
-    }
-
-    public function printWordPressXml() {
-
-//        echo $this->getWordPressXml();
-        echo json_encode($this->years);
-    }
-
+    /**
+     * Generate the actual WordPress Import files by year
+     */
     public function generateWordPressXml() {
         foreach ($this->getYears() as $year) {
             echo "generating xml for {$year}\n";
@@ -156,7 +135,7 @@ foreach ($this->posts as $key => $data) {
         // TODO note that post_name gets turned into the slug, not sure necessary
         $post_name = 'instagram-id-' . $obj->getId();
         // TODO what format is pubDate supposed to be?
-        $pubDate = $obj->getDate(); // TODO format?
+        $itemPubDate = $obj->getDate(); // TODO format?
         $instagramUrl = $obj->getInstagramUrl();
         $img_url = $this->getUrlForImages() . $data[self::jpg];
         $width = $obj->getWidth();
@@ -170,7 +149,7 @@ foreach ($this->posts as $key => $data) {
     <item>
         <title>{$title}</title>
         <link>{$instagramUrl}</link>
-        <pubDate>{$pubDate}</pubDate>
+        <pubDate>{$itemPubDate}</pubDate>
         <dc:creator><![CDATA[wordpresslocaladmin]]></dc:creator>
         <guid isPermaLink="false">{$instagramUrl}</guid>
 		<wp:post_id>{$post_id}</wp:post_id>
@@ -188,12 +167,20 @@ foreach ($this->posts as $key => $data) {
         <wp:post_type>post</wp:post_type>
         <wp:post_password></wp:post_password>
         <wp:is_sticky>0</wp:is_sticky>
-        <category domain="category" nicename="instalooter-import"><![CDATA[instalooter-import]]></category>
+
 END;
 
+        foreach ($this->getDefaultCategories() as $category) {
+            $encoded_category = htmlentities($category, ENT_XML1);
+            $out .= "<category domain=\"category\" nicename=\"{$encoded_category}\"><![CDATA[$encoded_category]]></category>\n";
+        }
+
         $tags = explode(',', $obj->getTags());
-        foreach ($tags as $tag) {
-            $out .= "<category domain=\"post_tag\" nicename=\"{$tag}\"><![CDATA[$tag]]></category>\n";
+        $defaultTags = $this->getDefaultTags();
+        foreach (array_merge($tags, $defaultTags) as $tag) {
+            if (trim($tag)) {
+                $out .= "<category domain=\"post_tag\" nicename=\"{$tag}\"><![CDATA[$tag]]></category>\n";
+            }
         }
         $out .= <<<END
 
@@ -277,6 +264,26 @@ return $out;
     {
         $this->readInstalooterFolder();
         $this->generateWordPressXml();
+    }
+
+    public function addCategory($string)
+    {
+        $this->categories[] = $string;
+    }
+
+    public function addTag($string)
+    {
+        $this->tags[] = $string;
+    }
+
+    private function getDefaultTags()
+    {
+        return $this->tags;
+    }
+
+    private function getDefaultCategories()
+    {
+        return $this->categories;
     }
 
 

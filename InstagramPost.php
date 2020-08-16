@@ -37,6 +37,10 @@ class InstagramPost
         return implode(',', $tags);
     }
 
+    /**
+     * TODO export this somehow? Like counts change. :-\
+     * @return mixed
+     */
     public function getLikeCount() {
         return $this->parsed()['edge_media_preview_like']['count'];
     }
@@ -68,11 +72,17 @@ class InstagramPost
 
 
     public function getDate($format = false) {
-        $date = new DateTime($this->getTakenAtTimeStamp());
-        if ($format) {
-            return $date->format($format);
-        } else {
-            return $date->format(DATE_ATOM);
+        try {
+            $date = new DateTime($this->getTakenAtTimeStamp());
+            if ($format) {
+                return $date->format($format);
+            } else {
+                return $date->format(DATE_ATOM);
+            }
+        } catch (Exception $e) {
+            // TODO handle? elements should really have timestamps
+            // defaults to now?
+            return new DateTime();
         }
     }
 
