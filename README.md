@@ -11,7 +11,9 @@ data and run something like ``
 ## Steps on the Command Line!
 
 1. `cd instalooter_dumps`
-1. `instalooter user bloggingbot --dump-json` \
+1. Typical usage would be to download a particular user's data, in this case I'll use my own little used `bloggingbot` account as an example, use your own here. Note that I have not tested this against multiple-image posts or videos yet! But here's the command I used: \
+\
+`instalooter user bloggingbot --dump-json` \
   \
   *Output:* \
    2020-08-16 14:33:33 MacbookLungPro.local instalooter.cli[37084] NOTICE Starting download of bloggingbot \
@@ -28,6 +30,7 @@ data and run something like ``
 
 1. You should now have a file called `2008.xml` in the `wordpress_imports` directory you can import into WordPress.
 
+---
 
 Questions? Feel free to comment here or hit me on email [joe@artlung.com](mailto:joe@artlung.com) or twitter [@artlung](https://twitter.com/artlung)
 
