@@ -16,17 +16,18 @@ data and run something like ``
 `instalooter user bloggingbot --dump-json` \
   \
   *Output:* \
-   2020-08-16 14:33:33 MacbookLungPro.local instalooter.cli[37084] NOTICE Starting download of bloggingbot \
-   2020-08-16 14:33:34 MacbookLungPro.local instalooter.cli[37084] SUCCESS Downloaded 1 post.
+   `2020-08-16 14:33:33 MacbookLungPro.local instalooter.cli[37084] NOTICE Starting download of bloggingbot` \
+   `2020-08-16 14:33:34 MacbookLungPro.local instalooter.cli[37084] SUCCESS Downloaded 1 post.`
 
 1. `cd ..`
 1. Edit `run.php` and edit the line that says `$I2W->setBaseUrlForAssets` and change the value to match where you are going to put these files. I use the WordPress plugin [Import External Images 2](https://github.com/VR51/import-external-images-2) after import to import them into my WordPress instance. You may have another way.
-1. `php run.php`
+1. `php run.php` \
+    \
     *Output:* \
     \
-    Reading JPEG 1722297278800439303.jpg \
-    Reading JSON 1722297278800439303.json \
-    generating xml for 2018
+    `Reading JPEG 1722297278800439303.jpg` \
+    `Reading JSON 1722297278800439303.json` \
+    `generating xml for 2018`
 
 1. You should now have a file called `2008.xml` in the `wordpress_imports` directory you can import into WordPress.
 
