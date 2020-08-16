@@ -13,7 +13,7 @@ class InstalooterToWordPress
     private $exportFolder;
     private $posts = [];
     private $years = [];
-    private $url_for_images;
+    private $base_url_for_assets;
     /**
      * @var array
      */
@@ -22,21 +22,23 @@ class InstalooterToWordPress
      * @var array
      */
     private $tags = [];
+    private $author_email = "nobody@example.org";
+    private $author_display_name = "Default Author Name";
 
     /**
      * @return mixed
      */
-    public function getUrlForImages()
+    public function getBaseUrlForImages()
     {
-        return $this->url_for_images;
+        return $this->base_url_for_assets;
     }
 
     /**
-     * @param mixed $url_for_images
+     * @param mixed $base_url_for_assets
      */
-    public function setUrlForImages($url_for_images)
+    public function setBaseUrlForAssets($base_url_for_assets)
     {
-        $this->url_for_images = $url_for_images;
+        $this->base_url_for_assets = $base_url_for_assets;
     }
 
     /**
@@ -96,6 +98,9 @@ class InstalooterToWordPress
     public function getWordPressXml($year) {
 
         $pubDate = date(DATE_RFC822);
+        $authorEmail = $this->getAuthorEmail();
+        $authorDisplayName = $this->getAuthorDisplayName();
+
         $out = '';
 $out .= <<<END
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -117,10 +122,11 @@ $out .= <<<END
     <wp:base_site_url>http://instalooter-to-wordpress</wp:base_site_url>
     <wp:base_blog_url>http://instalooter-to-wordpress</wp:base_blog_url>
 
-    <wp:author><wp:author_id>1</wp:author_id><wp:author_login>instalootertowordpresslocaladmin</wp:author_login><wp:author_email>nobody@example.com</wp:author_email><wp:author_display_name><![CDATA[instalootertowordpresslocaladmin]]></wp:author_display_name><wp:author_first_name><![CDATA[]]></wp:author_first_name><wp:author_last_name><![CDATA[]]></wp:author_last_name></wp:author>
+    <wp:author><wp:author_id>1</wp:author_id><wp:author_login>instalootertowordpresslocaladmin</wp:author_login><wp:author_email>{$authorEmail}</wp:author_email><wp:author_display_name><![CDATA[{$authorDisplayName}]]></wp:author_display_name><wp:author_first_name><![CDATA[]]></wp:author_first_name><wp:author_last_name><![CDATA[]]></wp:author_last_name></wp:author>
 
 
     <generator>http://InstalooterToWordpress</generator>
+
 END;
 
 $post_id = 1;
@@ -137,7 +143,7 @@ foreach ($this->posts as $key => $data) {
         // TODO what format is pubDate supposed to be?
         $itemPubDate = $obj->getDate(); // TODO format?
         $instagramUrl = $obj->getInstagramUrl();
-        $img_url = $this->getUrlForImages() . $data[self::jpg];
+        $img_url = $this->getBaseUrlForImages() . $data[self::jpg];
         $width = $obj->getWidth();
         $height = $obj->getHeight();
         $post_content = "<img src=\"{$img_url}\" alt=\"\" width=\"{$width}\" height=\"$height\" class=\"aligncenter instalooter-to-wordpress\" /></a> from Instagram <a href=\"{$instagramUrl}\">{$instagramUrl}</a> via <span class=\"InstalooterToWordPress\">InstalooterToWordPress</a>";
@@ -172,14 +178,14 @@ END;
 
         foreach ($this->getDefaultCategories() as $category) {
             $encoded_category = htmlentities($category, ENT_XML1);
-            $out .= "<category domain=\"category\" nicename=\"{$encoded_category}\"><![CDATA[$encoded_category]]></category>\n";
+            $out .= "        <category domain=\"category\" nicename=\"{$encoded_category}\"><![CDATA[$encoded_category]]></category>\n";
         }
 
         $tags = explode(',', $obj->getTags());
         $defaultTags = $this->getDefaultTags();
         foreach (array_merge($tags, $defaultTags) as $tag) {
             if (trim($tag)) {
-                $out .= "<category domain=\"post_tag\" nicename=\"{$tag}\"><![CDATA[$tag]]></category>\n";
+                $out .= "        <category domain=\"post_tag\" nicename=\"{$tag}\"><![CDATA[$tag]]></category>\n";
             }
         }
         $out .= <<<END
@@ -284,6 +290,32 @@ return $out;
     private function getDefaultCategories()
     {
         return $this->categories;
+    }
+
+    private function getAuthorEmail()
+    {
+        return $this->author_email;
+    }
+
+    private function getAuthorDisplayName()
+    {
+        return $this->author_display_name;
+    }
+
+    /**
+     * @param string $author_display_name
+     */
+    public function setAuthorDisplayName($author_display_name)
+    {
+        $this->author_display_name = $author_display_name;
+    }
+
+    /**
+     * @param string $author_email
+     */
+    public function setAuthorEmail($author_email)
+    {
+        $this->author_email = $author_email;
     }
 
 
