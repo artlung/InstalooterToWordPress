@@ -271,6 +271,9 @@ return $out;
     {
         $this->readInstalooterFolder();
         $this->generateWordPressXml();
+        if (count($this->posts) == 0) {
+            echo "No files were found in " . $this->getDumpFolder() . "\n";
+        }
     }
 
     public function addCategory($string)
