@@ -9,8 +9,27 @@ class InstalooterToWordPress
     const mp4 = 'mp4';
     const INSTAGRAMPOST = 'INSTAGRAMPOST';
     /* @var string */
-    public $dumpFolder;
+    private $dumpFolder;
+    private $exportFolder;
     private $posts = [];
+    private $years = [];
+    private $url_for_images;
+
+    /**
+     * @return mixed
+     */
+    public function getUrlForImages()
+    {
+        return $this->url_for_images;
+    }
+
+    /**
+     * @param mixed $url_for_images
+     */
+    public function setUrlForImages($url_for_images)
+    {
+        $this->url_for_images = $url_for_images;
+    }
 
     /**
      * @return mixed
@@ -36,8 +55,11 @@ class InstalooterToWordPress
 
     public function saveJSON($key, $json)
     {
+        $post = new InstagramPost($json);
         $this->posts[$key][self::json] = json_decode($json, true);
-        $this->posts[$key][self::INSTAGRAMPOST] = new InstagramPost($json);
+        $this->posts[$key][self::INSTAGRAMPOST] = $post;
+        $this->addYear($post->getYear());
+
     }
 
     public function saveMp4($key, $filename)
@@ -76,17 +98,27 @@ class InstalooterToWordPress
     }
 
     public function printWordPressXml() {
-        echo $this->getWordPressXml();
+
+//        echo $this->getWordPressXml();
+        echo json_encode($this->years);
     }
 
+    public function generateWordPressXml() {
+        foreach ($this->getYears() as $year) {
+            echo "generating xml for {$year}\n";
+            $xml = $this->getWordPressXml($year);
+            $handle = fopen($this->getOutputFolder() . '/' . $year . '.xml', 'w');
+            fwrite($handle, $xml);
+            fclose($handle);
+        }
+    }
 
-    public function getWordPressXml() {
+    public function getWordPressXml($year) {
 
         $pubDate = date(DATE_RFC822);
         $out = '';
 $out .= <<<END
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- generator="WordPress/3.9" created="2014-04-25 14:19" -->
 <rss version="2.0"
     xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
     xmlns:content="http://purl.org/rss/1.0/modules/content/"
@@ -117,12 +149,13 @@ foreach ($this->posts as $key => $data) {
 
     /* @var $obj InstagramPost */
     $obj = $data[self::INSTAGRAMPOST];
-    if ($obj && !$obj->isVideo() && $obj->getDate('Ym') == 201311 && $obj->getDate('Ymd') <= 20131107) {
+    // TODO isVideo doesnt work yet
+    if ($obj && !$obj->isVideo() && $obj->getDate('Y') == $year) {
         $post_id++;
         $post_name = 'instagram-id-' . $obj->getId();
         $pubDate = $obj->getDate(); // TODO format?
         $instagramUrl = $obj->getInstagramUrl();
-        $img_url = 'http://joecrawford.com/' . $data[self::jpg];
+        $img_url = $this->getUrlForImages() . $data[self::jpg];
         $width = $obj->getWidth();
         $height = $obj->getHeight();
         $post_content = "<img src=\"{$img_url}\" alt=\"\" width=\"{$width}\" height=\"$height\" class=\"aligncenter instalooter-to-wordpress\" /></a> from Instagram <a href=\"{$instagramUrl}\">{$instagramUrl}</a> via <span class=\"InstalooterToWordPress\">InstalooterToWordPress</a>";
@@ -153,16 +186,15 @@ foreach ($this->posts as $key => $data) {
         <wp:is_sticky>0</wp:is_sticky>
         <category domain="category" nicename="instalooter-import"><![CDATA[instalooter-import]]></category>
 END;
+
         $tags = explode(',', $obj->getTags());
         foreach ($tags as $tag) {
             $out .= "<category domain=\"post_tag\" nicename=\"{$tag}\"><![CDATA[$tag]]></category>\n";
         }
         $out .= <<<END
-<!--        <wp:postmeta>-->
-<!--            <wp:meta_key>_thumbnail_id</wp:meta_key>-->
-<!--            <wp:meta_value><![CDATA[6]]></wp:meta_value>-->
-<!--        </wp:postmeta>-->
+
     </item>
+
 END;
     }
 
@@ -175,6 +207,69 @@ END;
 </rss>
 END;
 return $out;
+    }
+
+    private function addYear($year)
+    {
+        if (!in_array($year, $this->years)) {
+            $this->years[] = $year;
+        }
+    }
+
+    public function setWordPressExportFolder($string)
+    {
+        $this->exportFolder = $string;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function readInstalooterFolder()
+    {
+        if ($handle = opendir($this->getDumpFolder())) {
+            while (false !== ($filename = readdir($handle))) {
+                list($key, $extension) = explode('.', $filename);
+
+                switch($extension) {
+                    case InstalooterToWordPress::jpg:
+                        $this->saveJpg($key, $filename);
+                        break;
+                    case InstalooterToWordPress::json:
+                        $this->saveJSON($key, file_get_contents($this->getDumpFolder() . '/' . $filename));
+                        break;
+                    // TODO handle video files
+                    case InstalooterToWordPress::mp4:
+                        $this->saveMp4($key, $filename);
+                        break;
+                    case 'gitignore':
+                    case '':
+                        break;
+                    default:
+                        throw new Exception($filename . ' in the input folder not sure how to handle.');
+                }
+            }
+            closedir($handle);
+        }
+    }
+
+    /**
+     * @param $year
+     * @return array
+     */
+    private function getYears() {
+        sort($this->years);
+        return $this->years;
+    }
+
+    private function getOutputFolder()
+    {
+        return $this->exportFolder;
+    }
+
+    public function run()
+    {
+        $this->readInstalooterFolder();
+        $this->generateWordPressXml();
     }
 
 

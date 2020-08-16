@@ -57,10 +57,10 @@ class InstagramPost
         return $this->parsed()['is_video'] === '1';
     }
     public function getHeight() {
-        return $this->parsed()['height'];
+        return $this->parsed()['dimensions']['height'];
     }
     public function getWidth() {
-        return $this->parsed()['width'];
+        return $this->parsed()['dimensions']['width'];
     }
     public function getId() {
         return $this->parsed()['id'];
@@ -74,6 +74,10 @@ class InstagramPost
         } else {
             return $date->format(DATE_ATOM);
         }
+    }
+
+    public function getYear() {
+        return $this->getDate('Y');
     }
 
 
