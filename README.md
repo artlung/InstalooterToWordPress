@@ -29,7 +29,7 @@ data and run something like ``
     `Reading JSON 1722297278800439303.json` \
     `generating xml for 2018`
 
-1. You should now have a file called `2008.xml` in the `wordpress_imports` directory you can import into WordPress.
+1. You should now have a file called `2018.xml` in the `wordpress_imports` directory you can import into WordPress.
 
 ---
 
