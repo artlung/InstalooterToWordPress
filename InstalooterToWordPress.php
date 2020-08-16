@@ -7,7 +7,7 @@ class InstalooterToWordPress
     const jpg = 'jpg';
     const json = 'json';
     const mp4 = 'mp4';
-    const INSTAGRAMPOST = 'INSTAGRAMPOST';
+    const INSTAGRAM_POST = 'INSTAGRAMPOST';
     /* @var string */
     private $dumpFolder;
     private $exportFolder;
@@ -57,11 +57,12 @@ class InstalooterToWordPress
     {
         $post = new InstagramPost($json);
         $this->posts[$key][self::json] = json_decode($json, true);
-        $this->posts[$key][self::INSTAGRAMPOST] = $post;
+        $this->posts[$key][self::INSTAGRAM_POST] = $post;
         $this->addYear($post->getYear());
 
     }
 
+    // TODO not handling video at this time sorry yo
     public function saveMp4($key, $filename)
     {
         $this->posts[$key][self::mp4] = $this->getDumpFolder() . '/' . $filename;
@@ -82,9 +83,9 @@ class InstalooterToWordPress
     }
     public function dumpTitles() {
         foreach($this->posts as $key => $data) {
-            if (array_key_exists(self::INSTAGRAMPOST, $data)) {
+            if (array_key_exists(self::INSTAGRAM_POST, $data)) {
                 /* @var InstagramPost */
-                $Post = $data[self::INSTAGRAMPOST];
+                $Post = $data[self::INSTAGRAM_POST];
                 echo $Post->getTitle();
                 echo "\n";
                 echo $Post->getTags();
@@ -148,17 +149,20 @@ $post_id = 1;
 foreach ($this->posts as $key => $data) {
 
     /* @var $obj InstagramPost */
-    $obj = $data[self::INSTAGRAMPOST];
+    $obj = $data[self::INSTAGRAM_POST];
     // TODO isVideo doesnt work yet
-    if ($obj && !$obj->isVideo() && $obj->getDate('Y') == $year) {
+    if ($obj && !$obj->isVideo() && $obj->getDate('Y') == $year && array_key_exists(self::jpg, $data)) {
         $post_id++;
+        // TODO note that post_name gets turned into the slug, not sure necessary
         $post_name = 'instagram-id-' . $obj->getId();
+        // TODO what format is pubDate supposed to be?
         $pubDate = $obj->getDate(); // TODO format?
         $instagramUrl = $obj->getInstagramUrl();
         $img_url = $this->getUrlForImages() . $data[self::jpg];
         $width = $obj->getWidth();
         $height = $obj->getHeight();
         $post_content = "<img src=\"{$img_url}\" alt=\"\" width=\"{$width}\" height=\"$height\" class=\"aligncenter instalooter-to-wordpress\" /></a> from Instagram <a href=\"{$instagramUrl}\">{$instagramUrl}</a> via <span class=\"InstalooterToWordPress\">InstalooterToWordPress</a>";
+        // TODO probably a more correct way to do this
         $post_date = $obj->getDate('Y-m-d H:i:s');
         $post_date_gmt = $obj->getDate('Y-m-d H:i:s');
         $title = htmlentities($obj->getTitle(), ENT_XML1);
@@ -232,13 +236,16 @@ return $out;
 
                 switch($extension) {
                     case InstalooterToWordPress::jpg:
+                        echo 'Reading JPEG ' . $filename . "\n";
                         $this->saveJpg($key, $filename);
                         break;
                     case InstalooterToWordPress::json:
+                        echo 'Reading JSON ' . $filename . "\n";
                         $this->saveJSON($key, file_get_contents($this->getDumpFolder() . '/' . $filename));
                         break;
                     // TODO handle video files
                     case InstalooterToWordPress::mp4:
+                        echo 'Ignoring video ' . $filename . "\n";
                         $this->saveMp4($key, $filename);
                         break;
                     case 'gitignore':
