@@ -9,8 +9,8 @@ class InstalooterToWordPress
     const mp4 = 'mp4';
     const INSTAGRAM_POST = 'INSTAGRAMPOST';
     /* @var string */
-    private $dumpFolder;
-    private $exportFolder;
+    private $dumpFolder = 'instalooter_dumps';
+    private $exportFolder = 'wordpress_imports';
     private $posts = [];
     private $years = [];
     private $base_url_for_assets;
@@ -242,6 +242,7 @@ return $out;
                         $this->saveMp4($key, $filename);
                         break;
                     case 'gitignore':
+                    case 'DS_Store':
                     case '':
                         break;
                     default:

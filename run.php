@@ -17,7 +17,7 @@ $I2W->setAuthorDisplayName('Your Name Here');
 // I like to add a category for an import, so if it goes bad I can find them quickly and batch delete
 $I2W->addCategory('instagram-import');
 
-// adding a tag is nice
+// adding a tag is nice for the same reason
 $I2W->addTag('via-instalooter-to-wordpress');
 
 $I2W->run();
