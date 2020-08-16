@@ -1,9 +1,8 @@
 # InstalooterToWordPress
 
-[Instalooter](https://github.com/althonos/InstaLooter) is an excellent tool for downloading images and metadata for your instagram posts.
-
 ## Background
-The itch I needed to scratch was this: I had posts from many years ago that I had not imported to my personal website. I started using IFTTT in 2013 to import them as I posted them and that has worked okay since then.
+The itch I needed to scratch was this: I had posts from many years ago that I had not imported to my personal website. I started using [IFTTT](https://ifttt.com) in 2013 to import them as I posted them and that has worked okay since then.
+[Instalooter](https://github.com/althonos/InstaLooter) is an excellent tool for downloading images and metadata for your instagram posts. 
 
 ## Requirements
 You will need to be able to run a recent version of PHP on the command line. You'll need Instalooter running locally.
@@ -25,8 +24,11 @@ data and run something like ``
     \
     Reading JPEG 1722297278800439303.jpg \
     Reading JSON 1722297278800439303.json \
-    generating xml for 2018 \
+    generating xml for 2018
 
 1. You should now have a file called `2008.xml` in the `wordpress_imports` directory you can import into WordPress.
+
+
+Questions? Feel free to comment here or hit me on email [joe@artlung.com](mailto:joe@artlung.com) or twitter [@artlung](https://twitter.com/artlung)
 
 
