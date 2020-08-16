@@ -20,7 +20,7 @@ data and run something like ``
    `2020-08-16 14:33:34 MacbookLungPro.local instalooter.cli[37084] SUCCESS Downloaded 1 post.`
 
 1. `cd ..`
-1. Edit `run.php` and edit the line that says `$I2W->setBaseUrlForAssets` and change the value to match where you are going to put these files. I use the WordPress plugin [Import External Images 2](https://github.com/VR51/import-external-images-2) after import to import them into my WordPress instance. You may have another way.
+1. Edit `run.php` and edit the line that says `$I2W->setBaseUrlForAssets` and change the value to match where you are going to put these files. I use the WordPress plugin [Import External Images 2](https://github.com/VR51/import-external-images-2) after import to import them into my WordPress instance. You may have another way. Also in `run.php` you can set the author name and email, which may be used if you don't set an existing author at import. Also you can add categories and tags to posts globally so you can manipulate them in bulk inside WordPress. Comment these out to not do that.
 1. `php run.php` \
     \
     *Output:* \
@@ -33,6 +33,6 @@ data and run something like ``
 
 ---
 
-Questions? Feel free to comment here or hit me on email [joe@artlung.com](mailto:joe@artlung.com) or twitter [@artlung](https://twitter.com/artlung)
+Questions? Feel free to comment here or hit me on email [joe@artlung.com](mailto:joe@artlung.com) or twitter [@artlung](https://twitter.com/artlung).
 
 
